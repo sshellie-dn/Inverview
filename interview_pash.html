@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Technical Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#161b27;--surface2:#1e2535;--border:#2a3245;
+  --text:#e2e8f0;--muted:#7a8aa0;--accent:#6366f1;--accent2:#818cf8;
+  --easy-bg:#0d2e20;--easy-text:#34d399;
+  --mid-bg:#2d1f06;--mid-text:#fbbf24;
+  --code-bg:#0d1117;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;}
+
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.logo{font-size:15px;font-weight:600;letter-spacing:-.02em;}
+.logo span{color:var(--accent2);}
+.lang-tabs{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;gap:2px;}
+.lang-tab{padding:4px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);border:none;background:transparent;transition:all .15s;}
+.lang-tab.active{background:var(--accent);color:#fff;}
+.progress-wrap{display:flex;align-items:center;gap:10px;}
+.progress-text{font-size:12px;color:var(--muted);}
+.progress-bar-wrap{width:100px;height:4px;background:var(--border);border-radius:2px;}
+.progress-bar{height:4px;background:var(--accent);border-radius:2px;transition:width .3s;}
+
+/* CONTROLS */
+.controls-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ctrl-label{font-size:11px;color:var(--muted);margin-right:2px;}
+.ctrl-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text);transition:all .15s;}
+.ctrl-btn:hover{background:var(--surface2);}
+.ctrl-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.sep{width:1px;height:18px;background:var(--border);margin:0 4px;}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:270px 1fr;min-height:calc(100vh - 100px);}
+
+/* SIDEBAR */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 0;position:sticky;top:100px;height:calc(100vh - 100px);overflow-y:auto;}
+.sidebar-group{padding:10px 16px 4px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+.sidebar-section-intro{padding:4px 16px 8px;font-size:11px;color:#4a5568;line-height:1.5;border-bottom:1px solid var(--border);margin-bottom:4px;}
+.sidebar-item{display:flex;align-items:center;gap:8px;padding:7px 16px;cursor:pointer;border:none;background:transparent;width:100%;text-align:left;transition:background .1s;}
+.sidebar-item:hover{background:var(--surface2);}
+.sidebar-item.hidden-task{opacity:.3;}
+.sidebar-item.done-task .item-title{color:var(--muted);text-decoration:line-through;}
+.item-title{font-size:12px;color:var(--text);flex:1;line-height:1.4;}
+.item-time{font-size:10px;color:var(--muted);white-space:nowrap;}
+.item-badge{font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;white-space:nowrap;}
+.badge-easy{background:var(--easy-bg);color:var(--easy-text);}
+.badge-mid{background:var(--mid-bg);color:var(--mid-text);}
+.vis-toggle{width:18px;height:18px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all .15s;}
+.vis-toggle.visible{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* MAIN */
+.main{padding:28px 36px;max-width:900px;}
+
+/* SECTION INTRO BLOCK */
+.section-intro{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:24px;}
+.section-intro-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.section-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.icon-python{background:#1e3a5f;}
+.icon-sql{background:#1a2e1a;}
+.icon-prob{background:#2d1f06;}
+.section-intro-title{font-size:16px;font-weight:600;color:var(--text);}
+.section-intro-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.section-intro-body{font-size:13px;color:#94a3b8;line-height:1.75;}
+.section-intro-body b{color:var(--text);font-weight:500;}
+.section-meta{display:flex;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+.meta-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.meta-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.dot-easy{background:#34d399;}
+.dot-mid{background:#fbbf24;}
+
+/* TASK CARD */
+.task-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:20px;overflow:hidden;transition:border-color .2s;}
+.task-card:hover{border-color:#3a4560;}
+.task-card.hidden-card{display:none;}
+.task-header{padding:16px 22px 14px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--border);}
+.task-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);font-weight:500;min-width:24px;padding-top:3px;}
+.task-meta{flex:1;}
+.task-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:5px;}
+.task-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.task-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;}
+.time-badge{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+
+/* TABS inside card */
+.card-tabs{display:flex;border-bottom:1px solid var(--border);}
+.card-tab{padding:10px 18px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);border:none;background:transparent;border-bottom:2px solid transparent;transition:all .15s;margin-bottom:-1px;}
+.card-tab.active{color:var(--accent2);border-bottom-color:var(--accent);}
+.card-tab-pane{display:none;padding:18px 22px;}
+.card-tab-pane.active{display:block;}
+
+.task-desc{font-size:13.5px;color:#94a3b8;line-height:1.8;}
+.task-desc code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--code-bg);padding:1px 6px;border-radius:4px;color:#a5b4fc;}
+.task-desc pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#a5b4fc;overflow-x:auto;margin:10px 0;}
+.task-desc ol,.task-desc ul{padding-left:20px;margin:8px 0;}
+.task-desc li{margin:4px 0;}
+.task-desc b{color:var(--text);font-weight:500;}
+
+/* HINT BOX */
+.hint-box{background:#1a1f2e;border:1px solid #2d3a5a;border-radius:8px;padding:12px 16px;margin-top:14px;}
+.hint-title{font-size:11px;font-weight:600;color:#6366f1;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.hint-body{font-size:12.5px;color:#7a8aa0;line-height:1.7;}
+.hint-body code{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:var(--code-bg);padding:1px 5px;border-radius:3px;color:#a5b4fc;}
+
+/* EDGE CASES */
+.edge-cases{margin-top:12px;}
+.edge-title{font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.edge-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:12.5px;color:#7a8aa0;}
+.edge-dot{width:5px;height:5px;border-radius:50%;background:#f59e0b;margin-top:6px;flex-shrink:0;}
+
+/* CODE AREA */
+.code-wrap{border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.code-header{background:#0a0d14;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.code-lang{font-size:11px;font-weight:500;color:var(--muted);}
+.code-actions{display:flex;gap:6px;}
+.code-btn{padding:3px 10px;border-radius:5px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;}
+.code-btn:hover{background:var(--surface2);color:var(--text);}
+.code-btn.run{background:var(--accent);border-color:var(--accent);color:#fff;}
+textarea.code-editor{width:100%;background:var(--code-bg);color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.65;padding:14px 16px;border:none;outline:none;resize:vertical;min-height:140px;tab-size:4;}
+.code-output{background:#090d14;border-top:1px solid var(--border);padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#86efac;white-space:pre-wrap;display:none;}
+.code-output.show{display:block;}
+
+/* DONE ROW */
+.done-row{display:flex;align-items:center;justify-content:space-between;padding:10px 22px;background:var(--surface2);border-top:1px solid var(--border);}
+.done-check{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);cursor:pointer;}
+.done-check input{accent-color:var(--accent);}
+
+/* TIMER */
+.timer-wrap{display:flex;align-items:center;gap:8px;}
+.timer{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);min-width:44px;}
+.timer.running{color:#34d399;}
+.timer.warn{color:#f59e0b;}
+.timer-btn{padding:2px 8px;border-radius:4px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);}
+.timer-btn:hover{background:var(--surface2);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">Technical <span>Assessment</span></div>
+    <div class="lang-tabs">
+      <button class="lang-tab active" onclick="setLang('ru')">🇷🇺 RU</button>
+      <button class="lang-tab" onclick="setLang('en')">🇬🇧 EN</button>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <span class="progress-text" id="progress-text">0 / 0</span>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="controls-bar">
+  <span class="ctrl-label">Раздел:</span>
+  <button class="ctrl-btn active" onclick="filterSection('all',this)">Все</button>
+  <button class="ctrl-btn" onclick="filterSection('python',this)">Python</button>
+  <button class="ctrl-btn" onclick="filterSection('sql',this)">SQL</button>
+  <button class="ctrl-btn" onclick="filterSection('prob',this)">Probability</button>
+  <div class="sep"></div>
+  <span class="ctrl-label">Видимость:</span>
+  <button class="ctrl-btn" onclick="showAll()">Показать все</button>
+  <button class="ctrl-btn" onclick="hideAll()">Скрыть все</button>
+  <div class="sep"></div>
+  <button class="ctrl-btn" onclick="syncFromSheets()" style="color:#818cf8;border-color:#3a3f6e;">⟳ Sync Sheets</button>
+</div>
+
+<div class="layout">
+<div class="sidebar" id="sidebar"></div>
+<div class="main" id="main"></div>
+</div>
+
+<script>
+const SECTIONS = {
+  python: {
+    icon: '🐍', iconClass: 'icon-python',
+    titleRU: 'Python', titleEN: 'Python',
+    subRU: '4 задачи · ~30 мин', subEN: '4 tasks · ~30 min',
+    introRU: `Проверяем базовый синтаксис Python, умение работать со строками, числами и датафреймами.<br><br>
+<b>Что ожидаем:</b> чистый читаемый код, обработка краевых случаев, понимание встроенных функций.<br>
+Задачи P1–P3 — чистый Python без библиотек. P4 — pandas на реальном датасете.<br><br>
+<b>На что обращаем внимание:</b> кандидат комментирует ли своё решение, замечает ли edge cases сразу или только после ошибки assert.`,
+    introEN: `We test core Python syntax, string/number manipulation, and pandas for data analysis.<br><br>
+<b>Expected:</b> clean readable code, edge case handling, idiomatic use of built-ins.<br>
+Tasks P1–P3 use pure Python. P4 requires pandas on a synthetic dataset.<br><br>
+<b>Watch for:</b> whether the candidate comments their logic, and whether they spot edge cases proactively.`,
+    tasks: ['p1','p2','p3','p4'],
+    times: {p1:'~8 мин', p2:'~8 мин', p3:'~7 мин', p4:'~12 мин'},
+    timesEN: {p1:'~8 min', p2:'~8 min', p3:'~7 min', p4:'~12 min'},
+  },
+  sql: {
+    icon: '🗄️', iconClass: 'icon-sql',
+    titleRU: 'SQL', titleEN: 'SQL',
+    subRU: '3 задачи · ~20 мин', subEN: '3 tasks · ~20 min',
+    introRU: `Проверяем понимание SQL: оконные функции, агрегаты, порядок выполнения запроса.<br><br>
+<b>Что ожидаем:</b> кандидат должен уметь написать запрос и объяснить почему выбрал именно этот подход.<br>
+S1 проверяет знание оконных функций (ROW_NUMBER). S3 — ключевой вопрос на понимание WHERE vs HAVING.<br><br>
+<b>На что обращаем внимание:</b> знает ли разницу между WHERE и HAVING, может ли объяснить порядок выполнения SQL-запроса.`,
+    introEN: `We test SQL understanding: window functions, aggregates, and query execution order.<br><br>
+<b>Expected:</b> candidate writes queries and explains their reasoning.<br>
+S1 tests window functions (ROW_NUMBER). S3 is the key WHERE vs HAVING question.<br><br>
+<b>Watch for:</b> understanding of execution order — can they explain why WHERE can't filter aggregates?`,
+    tasks: ['s1','s2','s3'],
+    times: {s1:'~8 мин', s2:'~5 мин', s3:'~8 мин'},
+    timesEN: {s1:'~8 min', s2:'~5 min', s3:'~8 min'},
+  },
+  prob: {
+    icon: '📊', iconClass: 'icon-prob',
+    titleRU: 'Теория вероятностей', titleEN: 'Probability',
+    subRU: '4 задачи · ~25 мин', subEN: '4 tasks · ~25 min',
+    introRU: `Проверяем базовую теорию вероятностей, теорему Байеса и математическую интуицию.<br><br>
+<b>Что ожидаем:</b> кандидат должен показать ход мысли, не только финальный ответ. Формулы можно подсмотреть — важно понимание.<br>
+T1 — биномиальное распределение. T2 — Байес и base rate neglect. T3 — задача на оптимизацию. T4 — pandas.<br><br>
+<b>На что обращаем внимание:</b> понимает ли кандидат почему результат Байеса контринтуитивен, умеет ли переводить математику в бизнес-смысл.`,
+    introEN: `We test basic probability theory, Bayes' theorem, and mathematical intuition.<br><br>
+<b>Expected:</b> candidate shows reasoning, not just the final answer. Formulas can be looked up — understanding matters.<br>
+T1 — binomial. T2 — Bayes and base rate neglect. T3 — optimisation puzzle. T4 — pandas.<br><br>
+<b>Watch for:</b> can they explain why the Bayes result is counterintuitive? Can they translate math into business insight?`,
+    tasks: ['t1','t2','t3','t4'],
+    times: {t1:'~6 мин', t2:'~10 мин', t3:'~8 мин', t4:'~8 мин'},
+    timesEN: {t1:'~6 min', t2:'~10 min', t3:'~8 min', t4:'~8 min'},
+  }
+};
+
+const TASKS = {
+  p1:{section:'python',level:'easy',
+    titleRU:'P1 · Сумма чётных чисел',titleEN:'P1 · Sum of even numbers',
+    badgeRU:'easy · Python',badgeEN:'easy · Python',
+    descRU:`Дана строка целых чисел, разделённых пробелом.<br>
+Напишите функцию <code>sum_even(s: str) -> int</code>, которая возвращает сумму всех <b>чётных</b> чисел из строки.
+<pre>sum_even("1 2 3 4 5 6")  →  12   (2 + 4 + 6)
+sum_even("1 3 5")         →   0
+sum_even("")              →   0</pre>`,
+    descEN:`Given a string of integers separated by spaces,
+write <code>sum_even(s: str) -> int</code> that returns the sum of all <b>even</b> numbers.
+<pre>sum_even("1 2 3 4 5 6")  →  12   (2 + 4 + 6)
+sum_even("1 3 5")         →   0
+sum_even("")              →   0</pre>`,
+    hintRU:`Попробуй: <code>s.split()</code> разбивает строку по пробелам.<br>
+Чётность: число чётное если <code>n % 2 == 0</code>.<br>
+Можно использовать list comprehension: <code>[int(x) for x in s.split() if ...]</code>`,
+    hintEN:`Try: <code>s.split()</code> splits by spaces.<br>
+Even check: <code>n % 2 == 0</code><br>
+List comprehension: <code>[int(x) for x in s.split() if ...]</code>`,
+    edgesRU:['Пустая строка "" — должна вернуть 0, не упасть','Строка из одних нечётных — вернуть 0','Отрицательные числа: -2 чётное (−2 % 2 == 0 в Python)'],
+    edgesEN:['Empty string "" — return 0, not crash','All odd numbers — return 0','Negative numbers: -2 is even (-2 % 2 == 0 in Python)'],
+    code:`def sum_even(s: str) -> int:
+    # YOUR CODE HERE
+    pass
+
+assert sum_even("1 2 3 4 5 6") == 12
+assert sum_even("1 3 5") == 0
+assert sum_even("") == 0
+assert sum_even("0 -2 4") == 2
+print("P1 OK")`},
+
+  p2:{section:'python',level:'easy',
+    titleRU:'P2 · Простые числа',titleEN:'P2 · Prime numbers',
+    badgeRU:'easy · Python',badgeEN:'easy · Python',
+    descRU:`Напишите функцию <code>is_prime(n: int) -> bool</code>.<br>
+Принимает целое число от 0 до 1000, возвращает <code>True</code> если простое, <code>False</code> иначе.<br><br>
+Простое число — натуральное число > 1, не имеющее делителей кроме 1 и себя.
+<pre>is_prime(7)   →  True
+is_prime(9)   →  False  (9 = 3 × 3)
+is_prime(1)   →  False
+is_prime(2)   →  True</pre>`,
+    descEN:`Write <code>is_prime(n: int) -> bool</code> for integers 0–1000.<br>
+Returns True if prime (greater than 1, no divisors other than 1 and itself), False otherwise.
+<pre>is_prime(7)   →  True
+is_prime(9)   →  False  (9 = 3 × 3)
+is_prime(1)   →  False
+is_prime(2)   →  True</pre>`,
+    hintRU:`Проверять делители нужно только до <b>√n</b>, не до n — почему?<br>
+Если n = a × b, то одно из них ≤ √n.<br>
+Используй <code>range(2, int(n**0.5) + 1)</code>.<br>
+Отдельно обработай случаи n=0, n=1, n=2.`,
+    hintEN:`Only check divisors up to <b>√n</b>, not n — why?<br>
+If n = a × b, then one of them ≤ √n.<br>
+Use <code>range(2, int(n**0.5) + 1)</code>.<br>
+Handle n=0, n=1, n=2 as special cases.`,
+    edgesRU:['0 и 1 — не простые','2 — единственное чётное простое','Все чётные числа > 2 — не простые (можно сразу отсечь)'],
+    edgesEN:['0 and 1 — not prime','2 — the only even prime','All even numbers > 2 — not prime (can short-circuit)'],
+    code:`def is_prime(n: int) -> bool:
+    # YOUR CODE HERE
+    pass
+
+assert is_prime(2) == True
+assert is_prime(7) == True
+assert is_prime(9) == False
+assert is_prime(1) == False
+assert is_prime(0) == False
+assert is_prime(97) == True
+print("P2 OK")`},
+
+  p3:{section:'python',level:'easy',
+    titleRU:'P3 · Версия приложения',titleEN:'P3 · Application version',
+    badgeRU:'easy · Python',badgeEN:'easy · Python',
+    descRU:`Дана строка версии в формате <code>MAJOR.MINOR.PATCH</code> (например <code>"12.3.4"</code>).<br>
+Напишите функцию <code>calc_version_weight(s: str) -> int</code>:
+<ol>
+<li>Вычисляет «вес»: <code>Weight = Major × 10000 + Minor × 100 + Patch</code></li>
+<li>Если в строке <b>не ровно 3 числа</b> — возвращает <code>-1</code></li>
+</ol>
+<pre>"12.3.4"   →  120304
+"1.0.0"    →  10000
+"1.2"      →  -1
+"1.2.3.4"  →  -1</pre>`,
+    descEN:`Given a version string <code>MAJOR.MINOR.PATCH</code> (e.g. <code>"12.3.4"</code>),
+write <code>calc_version_weight(s: str) -> int</code>:
+<ol>
+<li>Compute: <code>Weight = Major × 10000 + Minor × 100 + Patch</code></li>
+<li>Return <code>-1</code> if the string does <b>not</b> contain exactly 3 numbers</li>
+</ol>
+<pre>"12.3.4"   →  120304
+"1.0.0"    →  10000
+"1.2"      →  -1
+"1.2.3.4"  →  -1</pre>`,
+    hintRU:`<code>s.strip().split('.')</code> разбивает по точке.<br>
+Проверь <code>len(parts) != 3</code> — вернуть -1.<br>
+<code>try/except ValueError</code> для защиты от нечисловых частей.`,
+    hintEN:`<code>s.strip().split('.')</code> splits by dot.<br>
+Check <code>len(parts) != 3</code> → return -1.<br>
+<code>try/except ValueError</code> guards against non-numeric parts.`,
+    edgesRU:['Строка с пробелами вначале: " 12.3.4" — нужен strip()','Нечисловые части: "1.a.3" — должна вернуть -1','Нули: "0.0.0" → 0 (не -1!)'],
+    edgesEN:['Leading spaces: " 12.3.4" — needs strip()','Non-numeric parts: "1.a.3" — return -1','Zeros: "0.0.0" → 0 (not -1!)'],
+    code:`def calc_version_weight(s: str) -> int:
+    # YOUR CODE HERE
+    pass
+
+assert calc_version_weight("12.3.4") == 120304
+assert calc_version_weight("1.0.0")  == 10000
+assert calc_version_weight("1.2")    == -1
+assert calc_version_weight("1.2.3.4") == -1
+assert calc_version_weight("0.0.1")  == 1
+print("P3 OK")`},
+
+  p4:{section:'python',level:'mid',
+    titleRU:'P4 · Анализ CSV',titleEN:'P4 · CSV analysis',
+    badgeRU:'medium · pandas',badgeEN:'medium · pandas',
+    descRU:`Датафрейм содержит три колонки: <code>date</code>, <code>customer_id</code>, <code>purchase_amount</code>.<br>
+Данные охватывают несколько месяцев.<br><br>
+<b>Задание:</b>
+<ol>
+<li>Оставьте только строки за <b>последний месяц</b> (по полю date)</li>
+<li>Найдите <code>customer_id</code> с <b>наибольшим числом покупок</b> за этот период</li>
+<li>Посчитайте <b>среднее и стандартное отклонение</b> purchase_amount за последний месяц</li>
+</ol>`,
+    descEN:`DataFrame has columns: <code>date</code>, <code>customer_id</code>, <code>purchase_amount</code>, spanning several months.<br><br>
+<b>Tasks:</b>
+<ol>
+<li>Filter rows from the <b>last month only</b> (by date)</li>
+<li>Find the <code>customer_id</code> with the <b>most purchases</b> in that period</li>
+<li>Compute <b>mean and std</b> of purchase_amount for the last month</li>
+</ol>`,
+    hintRU:`Последний месяц: <code>df['date'].max().to_period('M')</code><br>
+Фильтр: <code>df[df['date'].dt.to_period('M') == last_month]</code><br>
+Топ покупатель: <code>df['customer_id'].value_counts().idxmax()</code>`,
+    hintEN:`Last month: <code>df['date'].max().to_period('M')</code><br>
+Filter: <code>df[df['date'].dt.to_period('M') == last_month]</code><br>
+Top customer: <code>df['customer_id'].value_counts().idxmax()</code>`,
+    edgesRU:['Не хардкодить месяц — использовать max() динамически','std() в pandas по умолчанию ddof=1 — это выборочное СО, правильно','Что если два клиента с одинаковым числом покупок?'],
+    edgesEN:['Do not hardcode the month — use max() dynamically','pandas std() defaults to ddof=1 — sample std, correct','What if two customers have equal purchase count?'],
+    code:`import pandas as pd, numpy as np
+np.random.seed(0)
+dates = pd.date_range('2024-01-01', periods=200, freq='3D')
+df = pd.DataFrame({
+    'date': pd.to_datetime(np.random.choice(dates, 300)),
+    'customer_id': np.random.choice([f'C{i:03d}' for i in range(1,21)], 300),
+    'purchase_amount': np.round(np.random.exponential(500, 300), 2)
+})
+print(df.head(), "\\n")
+print(f"Диапазон дат: {df['date'].min().date()} – {df['date'].max().date()}")
+
+# YOUR CODE HERE
+# 1. last_month = ...
+# 2. top_customer = ...
+# 3. mean, std = ...`},
+
+  s1:{section:'sql',level:'mid',
+    titleRU:'S1 · Последняя запись пользователя',titleEN:'S1 · Latest record per user',
+    badgeRU:'medium · SQL',badgeEN:'medium · SQL',
+    descRU:`Таблица <code>user_logs</code> содержит: <code>user_id</code>, <code>dttm</code>, <code>action</code>.<br>
+У одного пользователя может быть много записей.<br><br>
+Напишите запрос, который для каждого пользователя возвращает <b>только самую последнюю запись</b> по полю <code>dttm</code>.<br><br>
+Напишите SQL-запрос строкой и объясните почему выбрали именно этот подход.`,
+    descEN:`Table <code>user_logs</code>: <code>user_id</code>, <code>dttm</code>, <code>action</code>.<br>
+One user can have many rows.<br><br>
+Write a query returning the <b>most recent row per user</b> by <code>dttm</code>.<br><br>
+Write the SQL as a string and explain your approach.`,
+    hintRU:`Два подхода:<br>
+1. <b>Оконная функция:</b> <code>ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY dttm DESC)</code><br>
+2. <b>Подзапрос с MAX:</b> JOIN по <code>MAX(dttm)</code><br><br>
+Pandas эквивалент: <code>.sort_values('dttm').drop_duplicates('user_id', keep='last')</code>`,
+    hintEN:`Two approaches:<br>
+1. <b>Window function:</b> <code>ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY dttm DESC)</code><br>
+2. <b>Subquery with MAX:</b> JOIN on <code>MAX(dttm)</code><br><br>
+Pandas: <code>.sort_values('dttm').drop_duplicates('user_id', keep='last')</code>`,
+    edgesRU:['Что если у пользователя два события с одинаковым dttm? Оба вернутся при подходе с MAX','ROW_NUMBER() решает проблему дублей — выбирает ровно одну запись','GROUP BY user_id + SELECT * — невалидный SQL'],
+    edgesEN:['If two rows have same dttm, MAX approach returns both — tie-breaking issue','ROW_NUMBER() handles ties — returns exactly one row','GROUP BY user_id + SELECT * — invalid SQL'],
+    code:`import pandas as pd, numpy as np
+from datetime import datetime, timedelta
+np.random.seed(1)
+n = 50
+user_logs = pd.DataFrame({
+    'user_id': np.random.choice([f'U{i:02d}' for i in range(1, 11)], n),
+    'dttm': [datetime(2024,1,1)+timedelta(hours=int(h)) for h in np.random.randint(0,500,n)],
+    'action': np.random.choice(['login','purchase','logout','view'], n)
+})
+print(user_logs.sort_values(['user_id','dttm']).head(15))
+
+# Pandas решение:
+# YOUR CODE HERE
+
+# SQL (напишите строкой):
+sql = """
+SELECT ...
+FROM user_logs
+...
+"""
+print(sql)`},
+
+  s2:{section:'sql',level:'easy',
+    titleRU:'S2 · Должности и зарплаты',titleEN:'S2 · Positions and salaries',
+    badgeRU:'easy · SQL',badgeEN:'easy · SQL',
+    descRU:`Таблица <code>employees</code>: <code>employee_id</code>, <code>full_name</code>, <code>position</code>, <code>salary</code>.<br><br>
+Напишите запрос, который:
+<ol>
+<li>Возвращает всех сотрудников с их должностью и зарплатой</li>
+<li>Сортирует результат по <code>salary</code> в <b>убывающем</b> порядке</li>
+</ol>`,
+    descEN:`Table <code>employees</code>: <code>employee_id</code>, <code>full_name</code>, <code>position</code>, <code>salary</code>.<br><br>
+Write a query that:
+<ol>
+<li>Returns all employees with their position and salary</li>
+<li>Sorts by <code>salary</code> in <b>descending</b> order</li>
+</ol>`,
+    hintRU:`<code>SELECT full_name, position, salary FROM employees ORDER BY salary DESC</code>`,
+    hintEN:`<code>SELECT full_name, position, salary FROM employees ORDER BY salary DESC</code>`,
+    edgesRU:['SELECT * возвращает лишние колонки — лучше явно перечислить нужные','ASC vs DESC — убывающий это DESC'],
+    edgesEN:['SELECT * returns extra columns — explicit column list is cleaner','ASC vs DESC — descending is DESC'],
+    code:`import pandas as pd
+employees = pd.DataFrame({
+    'employee_id': range(1, 8),
+    'full_name':   ['Anna Kim','Boris Lee','Carla Reyes','David Park','Elena Sousa','Felix Tan','Grace Wu'],
+    'position':    ['Analyst','Manager','Analyst','Senior Analyst','Manager','Junior Analyst','Analyst'],
+    'salary':      [55000, 90000, 58000, 72000, 88000, 42000, 60000]
+})
+print(employees)
+
+# YOUR CODE HERE
+# Pandas + SQL строкой`},
+
+  s3:{section:'sql',level:'mid',
+    titleRU:'S3 · WHERE vs HAVING',titleEN:'S3 · WHERE vs HAVING',
+    badgeRU:'medium · SQL',badgeEN:'medium · SQL',
+    descRU:`Таблица <code>transactions</code>: <code>transaction_id</code>, <code>channel</code>, <code>amount</code>, <code>is_default</code> (0/1).<br><br>
+Напишите запрос, который возвращает каналы где:
+<ul>
+<li>Средний <code>amount</code> <b>больше 5000</b></li>
+<li>Количество транзакций <b>больше 50</b></li>
+</ul>
+Отсортируйте по среднему чеку по убыванию.<br><br>
+<i>💡 Подумайте: что идёт в WHERE, а что в HAVING?</i>`,
+    descEN:`Table <code>transactions</code>: <code>transaction_id</code>, <code>channel</code>, <code>amount</code>, <code>is_default</code> (0/1).<br><br>
+Return channels where:
+<ul>
+<li>Average <code>amount</code> <b>> 5000</b></li>
+<li>Transaction count <b>> 50</b></li>
+</ul>
+Sort by avg amount descending.<br><br>
+<i>💡 Think: which filter belongs in WHERE vs HAVING?</i>`,
+    hintRU:`<b>WHERE</b> фильтрует строки <b>до</b> GROUP BY — не может использовать агрегаты.<br>
+<b>HAVING</b> фильтрует группы <b>после</b> GROUP BY — используется для COUNT, AVG, SUM.<br><br>
+<code>WHERE AVG(amount) > 5000</code> → ошибка SQL<br>
+<code>HAVING COUNT(*) > 50 AND AVG(amount) > 5000</code> → правильно`,
+    hintEN:`<b>WHERE</b> filters rows <b>before</b> GROUP BY — cannot use aggregates.<br>
+<b>HAVING</b> filters groups <b>after</b> GROUP BY — for COUNT, AVG, SUM.<br><br>
+<code>WHERE AVG(amount) > 5000</code> → SQL error<br>
+<code>HAVING COUNT(*) > 50 AND AVG(amount) > 5000</code> → correct`,
+    edgesRU:['WHERE AVG(...) — частая ошибка, спроси почему это не работает','HAVING channel = "X" работает, но лучше в WHERE — спроси почему','Порядок выполнения SQL: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY'],
+    edgesEN:['WHERE AVG(...) is a common mistake — ask why it fails','HAVING channel = "X" works but WHERE is better — ask why','SQL execution order: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY'],
+    code:`import numpy as np, pandas as pd
+np.random.seed(2)
+n = 400
+transactions = pd.DataFrame({
+    'transaction_id': range(1, n+1),
+    'channel': np.random.choice(['xSell','Walk In','Online','Branch'], n, p=[0.4,0.3,0.2,0.1]),
+    'amount': np.random.normal(5500, 2000, n).clip(500, 15000).round(0),
+    'is_default': np.random.choice([0,1], n, p=[0.93, 0.07])
+})
+
+# YOUR CODE HERE
+sql = """
+SELECT channel,
+       COUNT(*) AS n_tx,
+       AVG(amount) AS avg_amount
+FROM transactions
+WHERE     -- ???
+GROUP BY channel
+HAVING    -- ???
+ORDER BY avg_amount DESC
+"""
+print(sql)`},
+
+  t1:{section:'prob',level:'easy',
+    titleRU:'T1 · Монета',titleEN:'T1 · Coin flips',
+    badgeRU:'easy · Теорвер',badgeEN:'easy · Probability',
+    descRU:`Монету бросают <b>10 раз</b>. Монета честная (p = 0.5).<br>
+Какова вероятность выпадения ровно <b>3 орлов</b>?<br><br>
+<b>Формула биномиального распределения:</b><br>
+<code>P(X=k) = C(n,k) · p^k · (1−p)^(n−k)</code><br><br>
+Решите вручную — покажите все шаги. Затем проверьте кодом.`,
+    descEN:`A fair coin (p = 0.5) is flipped <b>10 times</b>.<br>
+What is the probability of exactly <b>3 heads</b>?<br><br>
+<b>Binomial formula:</b><br>
+<code>P(X=k) = C(n,k) · p^k · (1−p)^(n−k)</code><br><br>
+Solve by hand showing all steps, then verify in code.`,
+    hintRU:`Шаг 1: C(10,3) = 10! / (3! × 7!) = <b>120</b><br>
+Шаг 2: (0.5)^10 = 1/1024 ≈ 0.000977<br>
+Шаг 3: P = 120 × 0.000977 ≈ <b>11.72%</b><br><br>
+Почему биномиальное? Фиксированное n, два исхода, постоянная p, независимые броски.`,
+    hintEN:`Step 1: C(10,3) = 10! / (3! × 7!) = <b>120</b><br>
+Step 2: (0.5)^10 = 1/1024 ≈ 0.000977<br>
+Step 3: P = 120 × 0.000977 ≈ <b>11.72%</b><br><br>
+Why binomial? Fixed n, two outcomes, constant p, independent trials.`,
+    edgesRU:['C(10,3) — число способов выбрать 3 броска из 10, порядок не важен','Каждая конкретная последовательность из 3 орлов и 7 решек: (0.5)^10','Итого: 120 одинаково вероятных последовательностей'],
+    edgesEN:['C(10,3) = number of ways to choose 3 from 10, order does not matter','Each specific sequence of 3 heads + 7 tails: (0.5)^10','Total: 120 equally likely sequences'],
+    code:`from math import comb
+
+# Шаг 1: посчитайте C(10,3)
+# Шаг 2: посчитайте (0.5)^10
+# Шаг 3: P = C(10,3) * (0.5)^10
+
+# YOUR CODE HERE
+p = comb(10, 3) * (0.5)**10
+print(f"C(10,3) = {comb(10,3)}")
+print(f"P(X=3)  = {p:.6f} = {p*100:.2f}%")`},
+
+  t2:{section:'prob',level:'mid',
+    titleRU:'T2 · Байес и медицинский тест',titleEN:'T2 · Bayes — medical test',
+    badgeRU:'medium · Байес',badgeEN:'medium · Bayes',
+    descRU:`Тест на заболевание имеет следующие характеристики:<br>
+<ul>
+<li><b>Sensitivity = 80%</b> — из всех больных тест находит 80%</li>
+<li><b>Specificity = 90%</b> — из всех здоровых тест правильно говорит «нет» в 90%</li>
+<li><b>Prevalence = 10%</b> — 10% людей в популяции больны</li>
+</ul>
+Пациент получил <b>положительный</b> результат теста.<br>
+Какова реальная вероятность того, что он <b>действительно болен</b>?<br><br>
+Покажите все шаги вычисления.`,
+    descEN:`A disease test has:<br>
+<ul>
+<li><b>Sensitivity = 80%</b> — finds 80% of sick patients</li>
+<li><b>Specificity = 90%</b> — correctly clears 90% of healthy people</li>
+<li><b>Prevalence = 10%</b> — 10% of the population has the disease</li>
+</ul>
+A patient tests <b>positive</b>.<br>
+What is the actual probability they have the disease?<br><br>
+Show all calculation steps.`,
+    hintRU:`<b>Теорема Байеса:</b> P(D|+) = P(+|D)×P(D) / P(+)<br><br>
+P(+|D) = sensitivity = 0.80<br>
+P(+|не D) = 1 − specificity = 0.10<br>
+P(+) = 0.80×0.10 + 0.10×0.90 = 0.08 + 0.09 = 0.17<br>
+P(D|+) = 0.08 / 0.17 ≈ <b>47.1%</b>`,
+    hintEN:`<b>Bayes' theorem:</b> P(D|+) = P(+|D)×P(D) / P(+)<br><br>
+P(+|D) = sensitivity = 0.80<br>
+P(+|not D) = 1 − specificity = 0.10<br>
+P(+) = 0.80×0.10 + 0.10×0.90 = 0.08 + 0.09 = 0.17<br>
+P(D|+) = 0.08 / 0.17 ≈ <b>47.1%</b>`,
+    edgesRU:['Интуиция говорит ~80% (sensitivity) — это ловушка base rate neglect','При prevalence 1% ответ упадёт до ~7.5% — попробуй поменять','Связь с кредитным скорингом: sensitivity = recall, specificity = 1-FPR'],
+    edgesEN:['Intuition says ~80% (sensitivity) — this is the base rate neglect trap','At prevalence 1% the answer drops to ~7.5% — try changing it','Credit scoring link: sensitivity = recall, specificity = 1-FPR'],
+    code:`sens, spec, prev = 0.80, 0.90, 0.10
+
+# Шаг 1: P(+|болен) = sens
+# Шаг 2: P(+|здоров) = 1 - spec
+# Шаг 3: P(+) = P(+|D)*P(D) + P(+|не D)*P(не D)
+# Шаг 4: P(D|+) = P(+|D)*P(D) / P(+)
+
+# YOUR CODE HERE
+p_pos = sens * prev + (1 - spec) * (1 - prev)
+ppv   = (sens * prev) / p_pos
+print(f"P(+)          = {p_pos:.4f}")
+print(f"P(болен | +)  = {ppv:.4f} = {ppv*100:.1f}%")`},
+
+  t3:{section:'prob',level:'mid',
+    titleRU:'T3 · Две урны',titleEN:'T3 · Two urns',
+    badgeRU:'medium · Теорвер',badgeEN:'medium · Probability',
+    descRU:`У вас есть <b>10 красных и 10 синих шаров</b> (всего 20) и два пустых ведра.<br>
+Вы должны распределить все 20 шаров по двум вёдрам. <b>Ни одно ведро не может быть пустым.</b><br><br>
+После этого «судья» с завязанными глазами:
+<ol>
+<li>Случайно выбирает ведро (вероятность 50/50)</li>
+<li>Случайно вытаскивает один шар из этого ведра</li>
+</ol>
+<b>Как распределить шары, чтобы максимизировать вероятность что судья вытащит красный шар?</b><br>
+Чему равна эта максимальная вероятность?`,
+    descEN:`You have <b>10 red and 10 blue balls</b> (20 total) and two empty buckets.<br>
+Distribute all 20 balls across the buckets. <b>Neither bucket may be empty.</b><br><br>
+A blindfolded judge then:
+<ol>
+<li>Randomly picks a bucket (50/50)</li>
+<li>Randomly draws one ball from that bucket</li>
+</ol>
+<b>How should you arrange the balls to maximise P(red)?</b><br>
+What is that maximum probability?`,
+    hintRU:`P(красный) = 0.5 × P(красный|ведро1) + 0.5 × P(красный|ведро2)<br><br>
+Попробуй: положи <b>1 красный</b> в ведро 1, всё остальное в ведро 2.<br>
+P = 0.5 × (1/1) + 0.5 × (9/19) = 0.5 + 0.2368 ≈ <b>73.7%</b><br><br>
+Для сравнения: разделить 10/10 → P = 50%`,
+    hintEN:`P(red) = 0.5 × P(red|bucket1) + 0.5 × P(red|bucket2)<br><br>
+Try: put <b>1 red</b> in bucket 1, everything else in bucket 2.<br>
+P = 0.5 × (1/1) + 0.5 × (9/19) = 0.5 + 0.2368 ≈ <b>73.7%</b><br><br>
+Compare: splitting 10/10 → P = 50%`,
+    edgesRU:['Ведро 1 должно содержать хотя бы 1 шар — иначе невалидно','Оптимум: 1 красный в ведро 1. Почему именно 1, а не 2?','Можно проверить перебором — попробуй написать код'],
+    edgesEN:['Each bucket must have at least 1 ball','Optimum: 1 red in bucket 1. Why 1 and not 2?','Verifiable by brute force — try writing the code'],
+    code:`best_p, best_cfg = 0, None
+for red1 in range(0, 11):
+    for blue1 in range(0, 11):
+        n1 = red1 + blue1
+        red2, blue2 = 10 - red1, 10 - blue1
+        n2 = red2 + blue2
+        if n1 == 0 or n2 == 0:
+            continue
+        p = 0.5*(red1/n1) + 0.5*(red2/n2)
+        if p > best_p:
+            best_p, best_cfg = p, (red1, blue1, red2, blue2)
+
+r1,b1,r2,b2 = best_cfg
+print(f"Ведро 1: {r1} красных + {b1} синих")
+print(f"Ведро 2: {r2} красных + {b2} синих")
+print(f"P(красный) = {best_p:.4f} = {best_p*100:.2f}%")`},
+
+  t4:{section:'prob',level:'mid',
+    titleRU:'T4 · Customer Lifetime',titleEN:'T4 · Customer Lifetime',
+    badgeRU:'medium · pandas',badgeEN:'medium · pandas',
+    descRU:`Датафрейм содержит: <code>date</code>, <code>customer_id</code>, <code>purchase_amount</code>.<br>
+Нам нужно понять, насколько долго «живут» наши клиенты.<br><br>
+<b>Задание:</b>
+<ol>
+<li>Для каждого клиента вычислите его <b>Lifetime в днях</b> — разница между последней и первой покупкой</li>
+<li>Посчитайте <b>средний Lifetime</b> по всей базе</li>
+</ol>`,
+    descEN:`DataFrame: <code>date</code>, <code>customer_id</code>, <code>purchase_amount</code>.<br>
+We want to understand how long our customers stay active.<br><br>
+<b>Tasks:</b>
+<ol>
+<li>Compute each customer's <b>Lifetime in days</b> (last purchase − first purchase date)</li>
+<li>Compute the <b>average Lifetime</b> across all customers</li>
+</ol>`,
+    hintRU:`<code>df.groupby('customer_id')['date'].agg(first='min', last='max')</code><br>
+Разница дат даёт timedelta — конвертируй через <code>.dt.days</code>`,
+    hintEN:`<code>df.groupby('customer_id')['date'].agg(first='min', last='max')</code><br>
+Date difference gives timedelta — convert with <code>.dt.days</code>`,
+    edgesRU:['Клиент с одной покупкой: lifetime = 0 дней (не ошибка!)','dt.days vs total_seconds()/86400 — оба верны, первый чище','Среднее считается по всем клиентам, включая тех у кого lifetime = 0'],
+    edgesEN:['Customer with one purchase: lifetime = 0 days (not an error!)','dt.days vs total_seconds()/86400 — both work, first is cleaner','Mean includes customers with lifetime = 0'],
+    code:`import pandas as pd, numpy as np
+np.random.seed(0)
+dates = pd.date_range('2024-01-01', periods=200, freq='3D')
+df = pd.DataFrame({
+    'date': pd.to_datetime(np.random.choice(dates, 300)),
+    'customer_id': np.random.choice([f'C{i:03d}' for i in range(1,21)], 300),
+    'purchase_amount': np.round(np.random.exponential(500, 300), 2)
+})
+print(df.head())
+
+# YOUR CODE HERE
+# lifetime = df.groupby('customer_id')['date'].agg(...)
+# avg = ...`},
+};
+
+const SHEETS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS9ycWk7ASbFudmV27A_OsuDna_RTnaWLmDA4wczASoQb63xTsENQZGqrimvPeM67E6WEN1jqvD3b05/pub?gid=0&single=true&output=csv';
+
+let lang='ru', visibility={}, done={}, timers={};
+Object.keys(TASKS).forEach(id=>{ visibility[id]=true; done[id]=false; timers[id]={sec:0,running:false,iv:null}; });
+
+function parseCSV(text){
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h=>h.trim().toLowerCase());
+  return lines.slice(1).map(line=>{
+    const vals = line.split(',').map(v=>v.trim());
+    const obj = {};
+    headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return obj;
+  });
+}
+
+function applySheetVisibility(rows){
+  rows.forEach(row=>{
+    const id = row['id'] || row[Object.keys(row)[0]];
+    const vis = row['visible'] || row[Object.keys(row)[1]];
+    if(id && visibility.hasOwnProperty(id)){
+      visibility[id] = vis.toUpperCase() === 'TRUE';
+    }
+  });
+}
+
+function showSyncStatus(msg, color){
+  let el = document.getElementById('sync-status');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'sync-status';
+    el.style.cssText = `position:fixed;top:60px;right:16px;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:500;z-index:999;transition:opacity .5s;`;
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.background = color === 'ok' ? '#0d2e20' : color === 'err' ? '#2d0f0f' : '#1e2535';
+  el.style.color = color === 'ok' ? '#34d399' : color === 'err' ? '#f87171' : '#7a8aa0';
+  el.style.opacity = '1';
+  if(color === 'ok') setTimeout(()=>{ el.style.opacity='0'; }, 3000);
+}
+
+async function syncFromSheets(){
+  showSyncStatus('⟳ Синхронизация...', 'sync');
+  try {
+    const res = await fetch(SHEETS_CSV + '&t=' + Date.now());
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    applySheetVisibility(rows);
+    render();
+    showSyncStatus('✓ Обновлено из Google Sheets', 'ok');
+  } catch(e) {
+    showSyncStatus('✗ Нет доступа к Sheets — используются локальные настройки', 'err');
+  }
+}
+
+// Автосинхронизация каждые 15 секунд
+setInterval(syncFromSheets, 15000);
+
+function setLang(l){
+  lang=l;
+  document.querySelectorAll('.lang-tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&l==='ru')||(i===1&&l==='en')));
+  render();
+}
+function filterSection(sec,btn){
+  document.querySelectorAll('.ctrl-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.task-group').forEach(g=>{
+    g.style.display=(sec==='all'||g.dataset.section===sec)?'':'none';
+  });
+}
+function showAll(){ Object.keys(TASKS).forEach(id=>visibility[id]=true); render(); }
+function hideAll(){ Object.keys(TASKS).forEach(id=>visibility[id]=false); render(); }
+function toggleVis(id){ visibility[id]=!visibility[id]; render(); }
+function markDone(id,val){ done[id]=val; updateProgress(); renderSidebar(); }
+function updateProgress(){
+  const vis=Object.keys(TASKS).filter(id=>visibility[id]);
+  const comp=vis.filter(id=>done[id]).length;
+  const total=vis.length;
+  document.getElementById('progress-text').textContent=`${comp} / ${total}`;
+  document.getElementById('progress-bar').style.width=total?`${comp/total*100}%`:'0%';
+}
+function switchTab(cardId,tab){
+  document.querySelectorAll(`#card-${cardId} .card-tab`).forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  document.querySelectorAll(`#card-${cardId} .card-tab-pane`).forEach(p=>p.classList.toggle('active',p.dataset.pane===tab));
+}
+function startTimer(id){
+  const t=timers[id];
+  if(t.running){clearInterval(t.iv);t.running=false;}
+  else{t.running=true;t.iv=setInterval(()=>{t.sec++;updateTimer(id);},1000);}
+  updateTimer(id);
+}
+function resetTimer(id){
+  const t=timers[id];
+  clearInterval(t.iv);t.running=false;t.sec=0;
+  updateTimer(id);
+}
+function updateTimer(id){
+  const t=timers[id];
+  const m=Math.floor(t.sec/60),s=t.sec%60;
+  const el=document.getElementById('timer-'+id);
+  if(!el)return;
+  el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.className='timer'+(t.running?(t.sec>600?' warn':' running'):'');
+}
+function copyCode(id){
+  navigator.clipboard.writeText(document.getElementById('code-'+id).value);
+  showToast('Copied!');
+}
+function runCode(id){
+  const out=document.getElementById('out-'+id);
+  out.classList.add('show');
+  out.textContent='▶ Code submitted — run in your local Python or Colab to verify';
+}
+function showToast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:20px;right:20px;background:#6366f1;color:#fff;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:500;z-index:999;transition:opacity .3s;';
+  t.textContent=msg; document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},1500);
+}
+
+function renderSidebar(){
+  let html='';
+  ['python','sql','prob'].forEach(sec=>{
+    const s=SECTIONS[sec];
+    const label=lang==='ru'?s.titleRU:s.titleEN;
+    const sub=lang==='ru'?s.subRU:s.subEN;
+    html+=`<div class="sidebar-group">${label} <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:#4a5568">${sub}</span></div>`;
+    s.tasks.forEach(id=>{
+      const t=TASKS[id];
+      const title=lang==='ru'?t.titleRU:t.titleEN;
+      const time=lang==='ru'?s.times[id]:s.timesEN[id];
+      html+=`<button class="sidebar-item ${!visibility[id]?'hidden-task':''} ${done[id]?'done-task':''}" onclick="scrollToCard('${id}')">
+        <span class="item-title">${title}</span>
+        <span class="item-time">${time}</span>
+        <span class="item-badge badge-${t.level==='easy'?'easy':'mid'}">${t.level}</span>
+        <div class="vis-toggle ${visibility[id]?'visible':''}" onclick="event.stopPropagation();toggleVis('${id}')">${visibility[id]?'👁':'—'}</div>
+      </button>`;
+    });
+  });
+  document.getElementById('sidebar').innerHTML=html;
+}
+
+function renderMain(){
+  const secMeta={
+    python:{labelRU:'Часть 1 — Python',labelEN:'Part 1 — Python'},
+    sql:{labelRU:'Часть 2 — SQL',labelEN:'Part 2 — SQL'},
+    prob:{labelRU:'Часть 3 — Теория вероятностей',labelEN:'Part 3 — Probability'},
+  };
+  let html='';
+  ['python','sql','prob'].forEach(sec=>{
+    const s=SECTIONS[sec];
+    const sLabel=lang==='ru'?secMeta[sec].labelRU:secMeta[sec].labelEN;
+    const intro=lang==='ru'?s.introRU:s.introEN;
+    const sub=lang==='ru'?s.subRU:s.subEN;
+    html+=`<div class="task-group" data-section="${sec}">
+      <div class="section-intro">
+        <div class="section-intro-head">
+          <div class="section-icon ${s.iconClass}">${s.icon}</div>
+          <div>
+            <div class="section-intro-title">${sLabel}</div>
+            <div class="section-intro-sub">${sub}</div>
+          </div>
+        </div>
+        <div class="section-intro-body">${intro}</div>
+        <div class="section-meta">
+          ${s.tasks.filter(id=>TASKS[id].level==='easy').length?`<div class="meta-item"><div class="meta-dot dot-easy"></div>${s.tasks.filter(id=>TASKS[id].level==='easy').length} easy</div>`:''}
+          ${s.tasks.filter(id=>TASKS[id].level==='mid').length?`<div class="meta-item"><div class="meta-dot dot-mid"></div>${s.tasks.filter(id=>TASKS[id].level==='mid').length} medium</div>`:''}
+        </div>
+      </div>`;
+
+    s.tasks.forEach(id=>{
+      const t=TASKS[id];
+      const title=lang==='ru'?t.titleRU:t.titleEN;
+      const badge=lang==='ru'?t.badgeRU:t.badgeEN;
+      const desc=lang==='ru'?t.descRU:t.descEN;
+      const hint=lang==='ru'?t.hintRU:t.hintEN;
+      const edges=lang==='ru'?t.edgesRU:t.edgesEN;
+      const time=lang==='ru'?s.times[id]:s.timesEN[id];
+      const bc=t.level==='easy'?'var(--easy-bg)':'var(--mid-bg)';
+      const tc=t.level==='easy'?'var(--easy-text)':'var(--mid-text)';
+      const edgesHtml=edges.map(e=>`<div class="edge-item"><div class="edge-dot"></div>${e}</div>`).join('');
+      const tabTask=lang==='ru'?'Задача':'Task';
+      const tabHint=lang==='ru'?'Подсказка':'Hint';
+      const tabEdge=lang==='ru'?'Edge cases':'Edge cases';
+      const tabCode=lang==='ru'?'Код':'Code';
+      const doneLabel=lang==='ru'?'Задача выполнена':'Mark as done';
+      const startLabel=lang==='ru'?'старт':'start';
+      const resetLabel=lang==='ru'?'сброс':'reset';
+
+      html+=`<div class="task-card ${!visibility[id]?'hidden-card':''}" id="card-${id}">
+        <div class="task-header">
+          <div class="task-num">${id.toUpperCase()}</div>
+          <div class="task-meta">
+            <div class="task-title">${title}</div>
+            <div class="task-badges">
+              <span class="task-badge" style="background:${bc};color:${tc}">${badge}</span>
+              <span class="time-badge">⏱ ${time}</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-tabs">
+          <button class="card-tab active" data-tab="task" onclick="switchTab('${id}','task')">${tabTask}</button>
+          <button class="card-tab" data-tab="edge" onclick="switchTab('${id}','edge')">${tabEdge}</button>
+          <button class="card-tab" data-tab="code" onclick="switchTab('${id}','code')">${tabCode}</button>
+        </div>
+        <div class="card-tab-pane active" data-pane="task">
+          <div class="task-desc">${desc}</div>
+        </div>
+        <div class="card-tab-pane" data-pane="edge">
+          <div class="edge-cases">
+            <div class="edge-title">⚠ Edge cases</div>
+            ${edgesHtml}
+          </div>
+        </div>
+        <div class="card-tab-pane" data-pane="code">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">python</span>
+              <div class="code-actions">
+                <button class="code-btn" onclick="copyCode('${id}')">copy</button>
+                <button class="code-btn run" onclick="runCode('${id}')">▶ run</button>
+              </div>
+            </div>
+            <textarea class="code-editor" id="code-${id}" spellcheck="false">${t.code}</textarea>
+            <div class="code-output" id="out-${id}"></div>
+          </div>
+        </div>
+        <div class="done-row">
+          <label class="done-check">
+            <input type="checkbox" ${done[id]?'checked':''} onchange="markDone('${id}',this.checked)">
+            ${doneLabel}
+          </label>
+          <div class="timer-wrap">
+            <span class="timer" id="timer-${id}">00:00</span>
+            <button class="timer-btn" onclick="startTimer('${id}')">${startLabel}</button>
+            <button class="timer-btn" onclick="resetTimer('${id}')">${resetLabel}</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  document.getElementById('main').innerHTML=html;
+}
+
+function scrollToCard(id){
+  const el=document.getElementById('card-'+id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function render(){ renderSidebar(); renderMain(); updateProgress(); }
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Tab'&&e.target.tagName==='TEXTAREA'){
+    e.preventDefault();
+    const ta=e.target,s=ta.selectionStart,end=ta.selectionEnd;
+    ta.value=ta.value.substring(0,s)+'    '+ta.value.substring(end);
+    ta.selectionStart=ta.selectionEnd=s+4;
+  }
+});
+
+// Первичная загрузка: сначала рендер с дефолтами, потом синхронизация
+render();
+syncFromSheets();
+</script>
+</body>
+</html>
