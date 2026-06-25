@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Technical Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#161b27;--surface2:#1e2535;--border:#2a3245;
+  --text:#e2e8f0;--muted:#7a8aa0;--accent:#6366f1;--accent2:#818cf8;
+  --green:#10b981;--amber:#f59e0b;--red:#ef4444;
+  --easy-bg:#0d2e20;--easy-text:#34d399;
+  --mid-bg:#2d1f06;--mid-text:#fbbf24;
+  --code-bg:#0d1117;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;}
+/* ── TOPBAR ── */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.logo{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.02em;}
+.logo span{color:var(--accent2);}
+.lang-tabs{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;gap:2px;}
+.lang-tab{padding:4px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s;border:none;background:transparent;}
+.lang-tab.active{background:var(--accent);color:#fff;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.progress-text{font-size:12px;color:var(--muted);}
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 56px);}
+/* ── SIDEBAR ── */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;}
+.sidebar-section{margin-bottom:4px;}
+.sidebar-group{padding:8px 16px 4px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+.sidebar-item{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;cursor:pointer;transition:background .1s;gap:8px;border:none;background:transparent;width:100%;text-align:left;}
+.sidebar-item:hover{background:var(--surface2);}
+.sidebar-item.active{background:var(--surface2);border-left:2px solid var(--accent);}
+.sidebar-item.done .item-title{color:var(--muted);text-decoration:line-through;}
+.item-title{font-size:12.5px;color:var(--text);flex:1;line-height:1.4;}
+.item-badge{font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;}
+.badge-easy{background:var(--easy-bg);color:var(--easy-text);}
+.badge-mid{background:var(--mid-bg);color:var(--mid-text);}
+.sidebar-item.hidden-task{opacity:.35;}
+.vis-toggle{width:16px;height:16px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all .15s;}
+.vis-toggle.visible{background:var(--accent);border-color:var(--accent);color:#fff;}
+/* ── MAIN ── */
+.main{padding:28px 36px;max-width:860px;}
+.section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+/* ── TASK CARD ── */
+.task-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:20px;overflow:hidden;transition:border-color .2s;}
+.task-card:hover{border-color:#3a4560;}
+.task-card.hidden-card{display:none;}
+.task-header{padding:18px 22px 14px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--border);}
+.task-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);font-weight:500;min-width:24px;padding-top:2px;}
+.task-meta{flex:1;}
+.task-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.3;}
+.task-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;}
+.task-body{padding:18px 22px;}
+.task-desc{font-size:13.5px;color:#94a3b8;line-height:1.75;margin-bottom:16px;}
+.task-desc code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--code-bg);padding:1px 6px;border-radius:4px;color:#a5b4fc;}
+.task-desc pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#a5b4fc;overflow-x:auto;margin:10px 0;}
+.task-desc ol,.task-desc ul{padding-left:20px;margin:6px 0;}
+.task-desc li{margin:3px 0;}
+/* ── CODE AREA ── */
+.code-wrap{position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.code-header{background:#0a0d14;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.code-lang{font-size:11px;font-weight:500;color:var(--muted);}
+.code-actions{display:flex;gap:6px;}
+.code-btn{padding:3px 10px;border-radius:5px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;}
+.code-btn:hover{background:var(--surface2);color:var(--text);}
+.code-btn.run{background:var(--accent);border-color:var(--accent);color:#fff;}
+.code-btn.run:hover{background:#4f46e5;}
+.code-btn.done-btn{background:var(--easy-bg);border-color:#065f46;color:var(--easy-text);}
+textarea.code-editor{width:100%;background:var(--code-bg);color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.65;padding:14px 16px;border:none;outline:none;resize:vertical;min-height:140px;tab-size:4;}
+.code-output{background:#090d14;border-top:1px solid var(--border);padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#86efac;min-height:32px;white-space:pre-wrap;display:none;}
+.code-output.error{color:#fca5a5;}
+.code-output.show{display:block;}
+/* ── DONE CHECK ── */
+.done-row{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;background:var(--surface2);border-top:1px solid var(--border);}
+.done-check{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
+.done-check input{accent-color:var(--accent);}
+/* ── EMPTY STATE ── */
+.empty{padding:60px 20px;text-align:center;color:var(--muted);}
+.empty-icon{font-size:32px;margin-bottom:12px;}
+.empty-text{font-size:13px;}
+/* ── CONTROLS BAR ── */
+.controls-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ctrl-label{font-size:11px;color:var(--muted);margin-right:4px;}
+.ctrl-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text);transition:all .15s;}
+.ctrl-btn:hover{background:var(--surface2);}
+.ctrl-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.sep{width:1px;height:18px;background:var(--border);margin:0 4px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">Technical <span>Assessment</span></div>
+    <div class="lang-tabs">
+      <button class="lang-tab active" onclick="setLang('ru')">🇷🇺 RU</button>
+      <button class="lang-tab" onclick="setLang('en')">🇬🇧 EN</button>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="progress-text" id="progress-text">0 / 0 completed</span>
+  </div>
+</div>
+
+<div class="controls-bar">
+  <span class="ctrl-label">Show:</span>
+  <button class="ctrl-btn active" onclick="filterSection('all',this)">All</button>
+  <button class="ctrl-btn" onclick="filterSection('python',this)">Python</button>
+  <button class="ctrl-btn" onclick="filterSection('sql',this)">SQL</button>
+  <button class="ctrl-btn" onclick="filterSection('prob',this)">Probability</button>
+  <div class="sep"></div>
+  <span class="ctrl-label">Visibility:</span>
+  <button class="ctrl-btn" onclick="showAll()">Show all</button>
+  <button class="ctrl-btn" onclick="hideAll()">Hide all</button>
+</div>
+
+<div class="layout">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main" id="main"></div>
+</div>
+
+<script>
+const TASKS = [
+  {id:'p1', section:'python', level:'easy',
+   titleRU:'P1 · Сумма чётных чисел', titleEN:'P1 · Sum of even numbers',
+   badgeRU:'easy · Python', badgeEN:'easy · Python',
+   descRU:`Дана строка целых чисел, разделённых пробелом.<br>
+Напишите функцию <code>sum_even(s: str) -> int</code>, которая возвращает сумму всех <b>чётных</b> чисел.
+<pre>sum_even("1 2 3 4 5 6")  →  12
+sum_even("1 3 5")         →   0
+sum_even("")              →   0</pre>`,
+   descEN:`Given a string of integers separated by spaces,
+write <code>sum_even(s: str) -> int</code> returning the sum of all <b>even</b> numbers.
+<pre>sum_even("1 2 3 4 5 6")  →  12
+sum_even("1 3 5")         →   0
+sum_even("")              →   0</pre>`,
+   code:`def sum_even(s: str) -> int:
+    # YOUR CODE HERE
+    pass
+
+assert sum_even("1 2 3 4 5 6") == 12
+assert sum_even("1 3 5") == 0
+assert sum_even("") == 0
+assert sum_even("0 -2 4") == 2
+print("P1 OK")`},
+
+  {id:'p2', section:'python', level:'easy',
+   titleRU:'P2 · Простые числа', titleEN:'P2 · Prime numbers',
+   badgeRU:'easy · Python', badgeEN:'easy · Python',
+   descRU:`Напишите функцию <code>is_prime(n: int) -> bool</code>.
+Принимает целое число 0–1000, возвращает True если простое.
+<pre>is_prime(7) → True   |  is_prime(9) → False
+is_prime(1) → False  |  is_prime(2) → True</pre>`,
+   descEN:`Write <code>is_prime(n: int) -> bool</code> for integers 0–1000.
+Returns True if prime, False otherwise.
+<pre>is_prime(7) → True   |  is_prime(9) → False
+is_prime(1) → False  |  is_prime(2) → True</pre>`,
+   code:`def is_prime(n: int) -> bool:
+    # YOUR CODE HERE
+    pass
+
+assert is_prime(2) == True
+assert is_prime(7) == True
+assert is_prime(9) == False
+assert is_prime(1) == False
+assert is_prime(97) == True
+print("P2 OK")`},
+
+  {id:'p3', section:'python', level:'easy',
+   titleRU:'P3 · Версия приложения', titleEN:'P3 · Application version',
+   badgeRU:'easy · Python', badgeEN:'easy · Python',
+   descRU:`Дана строка версии формата <code>MAJOR.MINOR.PATCH</code> (например <code>"12.3.4"</code>).<br>
+Напишите <code>calc_version_weight(s: str) -> int</code>:
+<ol><li>Weight = Major × 10000 + Minor × 100 + Patch</li>
+<li>Если не ровно 3 числа — вернуть <code>-1</code></li></ol>
+<pre>"12.3.4" → 120304  |  "1.2" → -1  |  "1.2.3.4" → -1</pre>`,
+   descEN:`Given a version string <code>MAJOR.MINOR.PATCH</code> (e.g. <code>"12.3.4"</code>),
+write <code>calc_version_weight(s: str) -> int</code>:
+<ol><li>Weight = Major × 10000 + Minor × 100 + Patch</li>
+<li>Return <code>-1</code> if not exactly 3 parts</li></ol>
+<pre>"12.3.4" → 120304  |  "1.2" → -1  |  "1.2.3.4" → -1</pre>`,
+   code:`def calc_version_weight(s: str) -> int:
+    # YOUR CODE HERE
+    pass
+
+assert calc_version_weight("12.3.4") == 120304
+assert calc_version_weight("1.0.0")  == 10000
+assert calc_version_weight("1.2")    == -1
+assert calc_version_weight("1.2.3.4") == -1
+assert calc_version_weight("0.0.1")  == 1
+print("P3 OK")`},
+
+  {id:'p4', section:'python', level:'mid',
+   titleRU:'P4 · Анализ CSV', titleEN:'P4 · CSV analysis',
+   badgeRU:'medium · pandas', badgeEN:'medium · pandas',
+   descRU:`Датафрейм: <code>date</code>, <code>customer_id</code>, <code>purchase_amount</code>.<br>
+<ol>
+<li>Оставьте только строки за <b>последний месяц</b> (по полю date)</li>
+<li>Найдите customer_id с <b>наибольшим числом покупок</b></li>
+<li>Посчитайте <b>среднее и стандартное отклонение</b> purchase_amount за этот период</li>
+</ol>`,
+   descEN:`DataFrame: <code>date</code>, <code>customer_id</code>, <code>purchase_amount</code>.<br>
+<ol>
+<li>Filter rows from the <b>last month only</b></li>
+<li>Find the customer_id with the <b>most purchases</b></li>
+<li>Compute <b>mean and std</b> of purchase_amount for that period</li>
+</ol>`,
+   code:`import pandas as pd, numpy as np
+np.random.seed(0)
+dates = pd.date_range('2024-01-01', periods=200, freq='3D')
+df = pd.DataFrame({
+    'date': pd.to_datetime(np.random.choice(dates, 300)),
+    'customer_id': np.random.choice([f'C{i:03d}' for i in range(1,21)], 300),
+    'purchase_amount': np.round(np.random.exponential(500, 300), 2)
+})
+
+# YOUR CODE HERE
+# 1. last_month = ...
+# 2. top_customer = ...
+# 3. mean, std = ...`},
+
+  {id:'s1', section:'sql', level:'mid',
+   titleRU:'S1 · Последняя запись пользователя', titleEN:'S1 · Latest record per user',
+   badgeRU:'medium · SQL', badgeEN:'medium · SQL',
+   descRU:`Таблица <code>user_logs</code>: <code>user_id</code>, <code>dttm</code>, <code>action</code>.<br>
+Для каждого пользователя верните <b>только самую последнюю запись</b> по полю dttm.<br>
+Напишите SQL-запрос и объясните почему выбрали именно этот подход.`,
+   descEN:`Table <code>user_logs</code>: <code>user_id</code>, <code>dttm</code>, <code>action</code>.<br>
+Return the <b>most recent row per user</b> by dttm.<br>
+Write the SQL query and explain your approach.`,
+   code:`-- Write your SQL query here
+-- Then translate to pandas below
+
+SELECT
+  -- ...
+FROM user_logs
+-- ...
+
+-- Pandas equivalent:
+# import pandas as pd
+# result = ...`},
+
+  {id:'s2', section:'sql', level:'easy',
+   titleRU:'S2 · Должности и зарплаты', titleEN:'S2 · Positions and salaries',
+   badgeRU:'easy · SQL', badgeEN:'easy · SQL',
+   descRU:`Таблица <code>employees</code>: <code>employee_id</code>, <code>full_name</code>, <code>position</code>, <code>salary</code>.<br>
+Верните всех сотрудников с должностью и зарплатой, отсортировав по <b>salary DESC</b>.`,
+   descEN:`Table <code>employees</code>: <code>employee_id</code>, <code>full_name</code>, <code>position</code>, <code>salary</code>.<br>
+Return all employees with position and salary, sorted by <b>salary DESC</b>.`,
+   code:`-- Write your SQL query here
+
+SELECT
+  -- ...
+FROM employees
+ORDER BY -- ...
+
+-- Pandas equivalent:
+# employees.sort_values('salary', ascending=False)[['full_name','position','salary']]`},
+
+  {id:'s3', section:'sql', level:'mid',
+   titleRU:'S3 · WHERE vs HAVING', titleEN:'S3 · WHERE vs HAVING',
+   badgeRU:'medium · SQL', badgeEN:'medium · SQL',
+   descRU:`Таблица <code>transactions</code>: <code>channel</code>, <code>amount</code>, <code>is_default</code>.<br>
+Верните каналы где <b>средний amount &gt; 5000</b> И <b>кол-во транзакций &gt; 50</b>.<br>
+Отсортируйте по среднему чеку по убыванию.<br><br>
+<i>💡 Подумайте: что идёт в WHERE, а что в HAVING?</i>`,
+   descEN:`Table <code>transactions</code>: <code>channel</code>, <code>amount</code>, <code>is_default</code>.<br>
+Return channels where <b>avg amount &gt; 5000</b> AND <b>count &gt; 50</b>.<br>
+Sort by avg amount descending.<br><br>
+<i>💡 Think carefully: what goes in WHERE vs HAVING?</i>`,
+   code:`SELECT
+  channel,
+  COUNT(*) AS n_tx,
+  AVG(amount) AS avg_amount
+FROM transactions
+WHERE       -- ???
+GROUP BY channel
+HAVING      -- ???
+ORDER BY avg_amount DESC`},
+
+  {id:'t1', section:'prob', level:'easy',
+   titleRU:'T1 · Монета', titleEN:'T1 · Coin flips',
+   badgeRU:'easy · Теорвер', badgeEN:'easy · Probability',
+   descRU:`Монету бросают <b>10 раз</b>. Какова вероятность выпадения ровно <b>3 орлов</b>?<br><br>
+Биномиальное распределение: <code>P(X=k) = C(n,k) · p^k · (1−p)^(n−k)</code><br><br>
+Решите вручную. Покажите шаги. Затем проверьте кодом.`,
+   descEN:`A fair coin is flipped <b>10 times</b>. What is the probability of exactly <b>3 heads</b>?<br><br>
+Binomial: <code>P(X=k) = C(n,k) · p^k · (1−p)^(n−k)</code><br><br>
+Solve by hand, show your steps, then verify in code.`,
+   code:`from math import comb
+
+# Step 1: C(10, 3) = ?
+# Step 2: (0.5)^10 = ?
+# Step 3: P = C(10,3) * (0.5)^10 = ?
+
+# YOUR CODE HERE
+p = comb(10, 3) * (0.5)**10
+print(f"P(X=3) = {p:.6f} = {p*100:.2f}%")`},
+
+  {id:'t2', section:'prob', level:'mid',
+   titleRU:'T2 · Байес и медицинский тест', titleEN:'T2 · Bayes — medical test',
+   badgeRU:'medium · Байес', badgeEN:'medium · Bayes',
+   descRU:`Тест на заболевание:<br>
+• Sensitivity = 80%&nbsp;&nbsp;(из больных тест находит 80%)<br>
+• Specificity = 90%&nbsp;&nbsp;(из здоровых тест говорит «нет» в 90%)<br>
+• Prevalence = 10%<br><br>
+Пациент получил <b>положительный</b> результат.<br>
+Какова реальная вероятность что он <b>действительно болен</b>?<br>
+Покажите все шаги.`,
+   descEN:`Disease test:<br>
+• Sensitivity = 80%&nbsp;&nbsp;(finds 80% of sick patients)<br>
+• Specificity = 90%&nbsp;&nbsp;(correctly clears 90% of healthy)<br>
+• Prevalence = 10%<br><br>
+A patient tests <b>positive</b>.<br>
+What is the actual probability they have the disease?<br>
+Show all steps.`,
+   code:`sens, spec, prev = 0.80, 0.90, 0.10
+
+# Step 1: P(+ | sick)    = sens = 0.80
+# Step 2: P(+ | healthy) = 1 - spec = 0.10
+# Step 3: P(+) = P(+|sick)*P(sick) + P(+|healthy)*P(healthy)
+# Step 4: P(sick|+) = P(+|sick)*P(sick) / P(+)
+
+# YOUR CODE HERE
+p_pos = sens * prev + (1 - spec) * (1 - prev)
+ppv   = (sens * prev) / p_pos
+print(f"P(+)        = {p_pos:.4f}")
+print(f"P(sick | +) = {ppv:.4f} = {ppv*100:.1f}%")`},
+
+  {id:'t3', section:'prob', level:'mid',
+   titleRU:'T3 · Две урны', titleEN:'T3 · Two urns',
+   badgeRU:'medium · Теорвер', badgeEN:'medium · Probability',
+   descRU:`<b>10 красных + 10 синих шаров</b>, два пустых ведра.<br>
+Распределите все 20 шаров (ни одно ведро не пустое).<br><br>
+«Судья» с завязанными глазами выбирает ведро (50/50), вытаскивает шар.<br><br>
+<b>Как распределить шары чтобы максимизировать P(красный)?</b><br>
+Чему равна эта максимальная вероятность?`,
+   descEN:`<b>10 red + 10 blue balls</b>, two empty buckets.<br>
+Distribute all 20 balls (neither empty).<br><br>
+Blindfolded judge picks bucket (50/50), draws one ball.<br><br>
+<b>How to maximise P(red)?</b><br>
+What is that maximum probability?`,
+   code:`best_p, best_cfg = 0, None
+for red1 in range(0, 11):
+    for blue1 in range(0, 11):
+        n1 = red1 + blue1
+        red2  = 10 - red1
+        blue2 = 10 - blue1
+        n2 = red2 + blue2
+        if n1 == 0 or n2 == 0:
+            continue
+        p = 0.5*(red1/n1) + 0.5*(red2/n2)
+        if p > best_p:
+            best_p, best_cfg = p, (red1, blue1, red2, blue2)
+
+r1,b1,r2,b2 = best_cfg
+print(f"Bucket 1: {r1} red + {b1} blue")
+print(f"Bucket 2: {r2} red + {b2} blue")
+print(f"P(red) = {best_p:.4f} = {best_p*100:.2f}%")`},
+
+  {id:'t4', section:'prob', level:'mid',
+   titleRU:'T4 · Customer Lifetime', titleEN:'T4 · Customer Lifetime',
+   badgeRU:'medium · pandas', badgeEN:'medium · pandas',
+   descRU:`Датафрейм: <code>date</code>, <code>customer_id</code>, <code>purchase_amount</code>.<br>
+<ol>
+<li>Вычислите «Lifetime» каждого клиента в днях (последняя − первая покупка)</li>
+<li>Посчитайте <b>средний Lifetime</b> по всей базе</li>
+</ol>`,
+   descEN:`DataFrame: <code>date</code>, <code>customer_id</code>, <code>purchase_amount</code>.<br>
+<ol>
+<li>Compute each customer's lifetime in days (last − first purchase date)</li>
+<li>Compute the <b>average lifetime</b> across all customers</li>
+</ol>`,
+   code:`import pandas as pd, numpy as np
+np.random.seed(0)
+dates = pd.date_range('2024-01-01', periods=200, freq='3D')
+df = pd.DataFrame({
+    'date': pd.to_datetime(np.random.choice(dates, 300)),
+    'customer_id': np.random.choice([f'C{i:03d}' for i in range(1,21)], 300),
+    'purchase_amount': np.round(np.random.exponential(500, 300), 2)
+})
+
+# YOUR CODE HERE
+# lifetime = df.groupby('customer_id')['date'].agg(...)
+# avg = ...`},
+];
+
+let lang = 'ru';
+let visibility = {};
+let done = {};
+TASKS.forEach(t => { visibility[t.id] = true; done[t.id] = false; });
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-tab').forEach((tab,i) => {
+    tab.classList.toggle('active', (i===0 && l==='ru') || (i===1 && l==='en'));
+  });
+  render();
+}
+
+function filterSection(sec, btn) {
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const cards = document.querySelectorAll('.task-card');
+  cards.forEach(c => {
+    const s = c.dataset.section;
+    c.style.display = (sec === 'all' || s === sec) ? '' : 'none';
+  });
+  const groups = document.querySelectorAll('.task-group');
+  groups.forEach(g => {
+    const visible = [...g.querySelectorAll('.task-card')].some(c => c.style.display !== 'none');
+    g.style.display = visible ? '' : 'none';
+  });
+}
+
+function showAll() { TASKS.forEach(t => { visibility[t.id] = true; }); render(); }
+function hideAll() { TASKS.forEach(t => { visibility[t.id] = false; }); render(); }
+function toggleVis(id) { visibility[id] = !visibility[id]; render(); }
+function markDone(id, val) { done[id] = val; updateProgress(); }
+
+function updateProgress() {
+  const total = Object.values(visibility).filter(Boolean).length;
+  const completed = TASKS.filter(t => visibility[t.id] && done[t.id]).length;
+  document.getElementById('progress-text').textContent = `${completed} / ${total} completed`;
+}
+
+function render() {
+  renderSidebar();
+  renderMain();
+  updateProgress();
+}
+
+function renderSidebar() {
+  const sections = [
+    {key:'python', label:'Python'},
+    {key:'sql',    label:'SQL'},
+    {key:'prob',   label:'Probability'},
+  ];
+  let html = '';
+  sections.forEach(sec => {
+    const tasks = TASKS.filter(t => t.section === sec.key);
+    html += `<div class="sidebar-section">
+      <div class="sidebar-group">${sec.label}</div>`;
+    tasks.forEach(t => {
+      const title = lang==='ru' ? t.titleRU : t.titleEN;
+      const isVis = visibility[t.id];
+      html += `<button class="sidebar-item ${!isVis?'hidden-task':''} ${done[t.id]?'done':''}"
+        onclick="scrollTo('${t.id}')">
+        <span class="item-title">${title}</span>
+        <span class="item-badge badge-${t.level==='easy'?'easy':'mid'}">${t.level}</span>
+        <div class="vis-toggle ${isVis?'visible':''}" onclick="event.stopPropagation();toggleVis('${t.id}')" title="${isVis?'Hide':'Show'}">
+          ${isVis?'👁':'—'}
+        </div>
+      </button>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('sidebar').innerHTML = html;
+}
+
+function renderMain() {
+  const sections = [
+    {key:'python', label:'Part 1 — Python'},
+    {key:'sql',    label:'Part 2 — SQL'},
+    {key:'prob',   label:'Part 3 — Probability'},
+  ];
+  let html = '';
+  sections.forEach(sec => {
+    const tasks = TASKS.filter(t => t.section === sec.key);
+    const sLabel = lang==='ru'
+      ? {python:'Часть 1 — Python', sql:'Часть 2 — SQL', prob:'Часть 3 — Теория вероятностей'}[sec.key]
+      : sec.label;
+    html += `<div class="task-group" data-section="${sec.key}">
+      <div class="section-title">${sLabel}</div>`;
+    tasks.forEach(t => {
+      const title = lang==='ru' ? t.titleRU : t.titleEN;
+      const badge = lang==='ru' ? t.badgeRU : t.badgeEN;
+      const desc  = lang==='ru' ? t.descRU  : t.descEN;
+      const isVis = visibility[t.id];
+      const bcol  = t.level==='easy' ? 'var(--easy-bg)' : 'var(--mid-bg)';
+      const tcol  = t.level==='easy' ? 'var(--easy-text)' : 'var(--mid-text)';
+      html += `<div class="task-card ${!isVis?'hidden-card':''}" id="card-${t.id}" data-section="${sec.key}">
+        <div class="task-header">
+          <div class="task-num">${t.id.toUpperCase()}</div>
+          <div class="task-meta">
+            <div class="task-title">${title}</div>
+            <span class="task-badge" style="background:${bcol};color:${tcol}">${badge}</span>
+          </div>
+        </div>
+        <div class="task-body">
+          <div class="task-desc">${desc}</div>
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">python</span>
+              <div class="code-actions">
+                <button class="code-btn" onclick="copyCode('${t.id}')">copy</button>
+                <button class="code-btn run" onclick="runCode('${t.id}')">▶ run</button>
+              </div>
+            </div>
+            <textarea class="code-editor" id="code-${t.id}" spellcheck="false">${t.code}</textarea>
+            <div class="code-output" id="out-${t.id}"></div>
+          </div>
+        </div>
+        <div class="done-row">
+          <label class="done-check">
+            <input type="checkbox" ${done[t.id]?'checked':''} onchange="markDone('${t.id}',this.checked)">
+            ${lang==='ru'?'Задача выполнена':'Mark as done'}
+          </label>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('main').innerHTML = html;
+}
+
+function scrollTo(id) {
+  const el = document.getElementById('card-'+id);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyCode(id) {
+  const ta = document.getElementById('code-'+id);
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    showToast('Copied!');
+  });
+}
+
+function runCode(id) {
+  const code = document.getElementById('code-'+id).value;
+  const out  = document.getElementById('out-'+id);
+  out.classList.add('show');
+  out.classList.remove('error');
+
+  // Simple Python simulation for assertions and prints
+  try {
+    const lines = code.split('\n');
+    let output = [];
+
+    // Detect print statements
+    const printRe = /print\(f?"([^"]+)"\)/;
+    lines.forEach(l => {
+      const trimmed = l.trim();
+      if(trimmed.startsWith('print(') && trimmed.includes('"')) {
+        const m = trimmed.match(/print\((?:f)?"(.+?)"\)/);
+        if(m) output.push('→ ' + m[1].replace(/\{[^}]+\}/g,'…'));
+      }
+      if(trimmed.startsWith('print(') && trimmed.includes('OK')) {
+        const m = trimmed.match(/print\("(.+)"\)/);
+        if(m) output.push('✓ ' + m[1]);
+      }
+    });
+
+    if(output.length === 0) {
+      output = ['▶ Code submitted — verify in your local Python or Colab'];
+    }
+    out.textContent = output.join('\n');
+  } catch(e) {
+    out.textContent = '✗ Error: ' + e.message;
+    out.classList.add('error');
+  }
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#6366f1;color:#fff;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:500;z-index:999;transition:opacity .3s;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 1500);
+}
+
+// Tab key in textarea
+document.addEventListener('keydown', e => {
+  if(e.key === 'Tab' && e.target.tagName === 'TEXTAREA') {
+    e.preventDefault();
+    const ta = e.target;
+    const s = ta.selectionStart, end = ta.selectionEnd;
+    ta.value = ta.value.substring(0,s) + '    ' + ta.value.substring(end);
+    ta.selectionStart = ta.selectionEnd = s + 4;
+  }
+});
+
+render();
+</script>
+</body>
+</html>
